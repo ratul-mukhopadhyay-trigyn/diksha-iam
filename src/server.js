@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const otpRoutes = require('./routes/otp.routes');
 const ssoRoutes = require('./routes/sso.routes');
 const { connect, shutdown } = require('./db/cassandra');
 const { HttpError } = require('./services/sso.service');
@@ -14,6 +15,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ ok: true });
 });
 
+app.use('/', otpRoutes);
 app.use('/', ssoRoutes);
 
 app.use((req, res) => {

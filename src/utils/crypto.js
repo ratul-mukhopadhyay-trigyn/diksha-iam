@@ -55,8 +55,58 @@ function encryptSsoPayload(payload) {
   return Buffer.concat([iv, encrypted, authTag]).toString('base64');
 }
 
+function encryptOtpPayload(payload) {
+  const plaintext = JSON.stringify(payload);
+  const key = crypto.randomBytes(32);
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const ciphertext = Buffer.concat([
+    cipher.update(plaintext, 'utf8'),
+    cipher.final(),
+  ]);
+  const authTag = cipher.getAuthTag();
+
+  return {
+    data: [
+      ciphertext.toString('base64'),
+      iv.toString('base64'),
+      authTag.toString('base64'),
+      key.toString('base64'),
+    ].join('#&'),
+    isEncryption: true,
+  };
+}
+
+function decryptOtpPayload(payload) {
+  if (!payload || payload.isEncryption !== true || typeof payload.data !== 'string') {
+    throw new Error('Invalid OTP payload.');
+  }
+
+  const parts = payload.data.split('#&');
+  if (parts.length !== 4) {
+    throw new Error('Invalid OTP payload format.');
+  }
+
+  const [ciphertextBase64, ivBase64, authTagBase64, keyBase64] = parts;
+  const decipher = crypto.createDecipheriv(
+    'aes-256-gcm',
+    Buffer.from(keyBase64, 'base64'),
+    Buffer.from(ivBase64, 'base64'),
+  );
+  decipher.setAuthTag(Buffer.from(authTagBase64, 'base64'));
+
+  const plaintext = Buffer.concat([
+    decipher.update(Buffer.from(ciphertextBase64, 'base64')),
+    decipher.final(),
+  ]).toString('utf8');
+
+  return JSON.parse(plaintext);
+}
+
 module.exports = {
+  decryptOtpPayload,
   decryptStoredField,
+  encryptOtpPayload,
   encryptLookupValue,
   encryptSsoPayload,
 };
