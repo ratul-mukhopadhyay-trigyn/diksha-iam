@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  iam-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iam-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:3000"

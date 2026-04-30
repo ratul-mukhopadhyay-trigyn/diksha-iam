@@ -1,0 +1,332 @@
+{
+  "info": {
+    "_postman_id": "e3e846cc-5cee-4ec9-830c-17ffc227010b",
+    "name": "IAM project Postman collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49278491",
+    "_collection_link": "https://go.postman.co/collection/49278491-e3e846cc-5cee-4ec9-830c-17ffc227010b?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Create user",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"firstname\": \"Ratul\",\r\n  \"lastname\": \"Mukhopadhyay\",\r\n  \"dob\": \"1990-01-15\",\r\n  \"email\": \"ratul003@example.com\",\r\n  \"phone\": \"9876543298\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/users",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users"
+          ]
+        },
+        "description": "Create User"
+      },
+      "response": []
+    },
+    {
+      "name": "Get user by id",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/users/2b98b247-1f7e-4f29-bc73-3909a3fd9603",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users",
+            "2b98b247-1f7e-4f29-bc73-3909a3fd9603"
+          ]
+        },
+        "description": "Get user by id"
+      },
+      "response": []
+    },
+    {
+      "name": "Get user by email",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/users?email=ratul003@example.com",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users"
+          ],
+          "query": [
+            {
+              "key": "email",
+              "value": "ratul003@example.com"
+            }
+          ]
+        },
+        "description": "get user by email"
+      },
+      "response": []
+    },
+    {
+      "name": "Get user by phone",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/users?phone=9876543298",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users"
+          ],
+          "query": [
+            {
+              "key": "phone",
+              "value": "9876543298"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update user",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\r\n  \"phone\": \"9898189898\",\r\n\r\n  \"dob\": \"1992-07-18\"\r\n\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/users/2b98b247-1f7e-4f29-bc73-3909a3fd9603",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users",
+            "2b98b247-1f7e-4f29-bc73-3909a3fd9603"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "delete user by id",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/users/2b98b247-1f7e-4f29-bc73-3909a3fd9603",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users",
+            "2b98b247-1f7e-4f29-bc73-3909a3fd9603"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "generate sso url by email",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "localhost:3000/sso?email=ratul003@example.com",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "sso"
+          ],
+          "query": [
+            {
+              "key": "email",
+              "value": "ratul003@example.com"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "generate sso url by phone",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "localhost:3000/sso?phone=9876543298",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "sso"
+          ],
+          "query": [
+            {
+              "key": "phone",
+              "value": "9876543298"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Generate OTP using phone",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"request\": {\r\n    \"key\": \"7895039008\",\r\n    \"type\": \"phone\"\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/otp/generate",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "otp",
+            "generate"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Generate OTP using email",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"request\": {\r\n    \"key\": \"ncertdevenv1@yopmail.com\",\r\n    \"type\": \"email\"\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/otp/generate",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "otp",
+            "generate"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Verify OTP",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"request\": {\r\n    \"key\": \"ncertdevenv1@yopmail.com\",\r\n    \"type\": \"email\",\r\n    \"otp\": \"123456\"\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:3000/otp/verify",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "otp",
+            "verify"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

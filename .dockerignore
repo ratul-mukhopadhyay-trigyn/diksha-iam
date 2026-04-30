@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+project_work_folders
+*.7z

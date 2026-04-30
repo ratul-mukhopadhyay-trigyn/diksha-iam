@@ -15,6 +15,9 @@ const USER_BY_ID_QUERY = `
   WHERE id = ?
 `;
 
+const USERNAME_CANDIDATES_PER_ITERATION = 10;
+const USERNAME_MAX_ITERATIONS = 10;
+
 function nowUtcString() {
   return new Date().toISOString().replace('T', ' ').replace('Z', '+0000');
 }
@@ -33,10 +36,51 @@ function normalizeForLookup(value) {
 function normalizeForStorage(value, field) {
   if (value == null) return value;
   const stringValue = String(value).trim();
-  if (field === 'email') {
+  if (field === 'email' || field === 'username') {
     return stringValue.toLowerCase();
   }
   return stringValue;
+}
+
+function getUsernameSuffixLength() {
+  const configured =
+    process.env.sunbird_username_num_digits ?? process.env.SUNBIRD_USERNAME_NUM_DIGITS ?? '4';
+  const parsed = Number.parseInt(String(configured).trim(), 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 4;
+}
+
+function slugifyName(value) {
+  return String(value ?? '')
+    .normalize('NFKD')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .toLowerCase();
+}
+
+function normalizeUsernameBase(firstname, lastname) {
+  const fullName = `${firstname ?? ''} ${lastname ?? ''}`.trim();
+  const slug = slugifyName(fullName).replace(/-+/g, '');
+  return slug;
+}
+
+function randomAlphaNumericLower(length) {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const bytes = crypto.randomBytes(length);
+  let output = '';
+  for (let i = 0; i < bytes.length; i += 1) {
+    output += alphabet[bytes[i] % alphabet.length];
+  }
+  return output;
+}
+
+function generateUsernameCandidates(base, suffixLength) {
+  const candidates = [];
+  for (let i = 0; i < USERNAME_CANDIDATES_PER_ITERATION; i += 1) {
+    candidates.push(`${base}_${randomAlphaNumericLower(suffixLength)}`);
+  }
+  return candidates;
 }
 
 function mapEncryptedUserFields(data) {
@@ -67,6 +111,32 @@ async function ensureLookupIsUnique(type, value, currentUserId = null) {
   if (!existingUserId) return;
   if (currentUserId && existingUserId === currentUserId) return;
   throw new HttpError(409, 'User exist');
+}
+
+async function resolveUsernameForCreate(payload) {
+  if (payload.username != null && String(payload.username).trim() !== '') {
+    const providedUsername = normalizeForStorage(payload.username, 'username');
+    await ensureLookupIsUnique('username', providedUsername);
+    return providedUsername;
+  }
+
+  const base = normalizeUsernameBase(payload.firstname, payload.lastname);
+  if (!base) {
+    throw new HttpError(400, 'firstname is required for username generation.');
+  }
+
+  const suffixLength = getUsernameSuffixLength();
+  for (let i = 0; i < USERNAME_MAX_ITERATIONS; i += 1) {
+    const candidates = generateUsernameCandidates(base, suffixLength);
+    for (const candidate of candidates) {
+      const existingUserId = await lookupUserIdByTypeValue('username', candidate);
+      if (!existingUserId) {
+        return candidate;
+      }
+    }
+  }
+
+  throw new HttpError(500, 'Unable to generate unique username, please retry.');
 }
 
 async function upsertLookup(type, value, userId) {
@@ -123,6 +193,7 @@ function rejectImmutableFields(data) {
 async function createUser(payload = {}) {
   const id = toCanonicalId(payload.id);
   const timestamp = nowUtcString();
+  const resolvedUsername = await resolveUsernameForCreate(payload);
 
   await ensureLookupIsUnique('email', payload.email);
   await ensureLookupIsUnique('phone', payload.phone);
@@ -137,6 +208,7 @@ async function createUser(payload = {}) {
     updateddate: payload.updateddate ?? timestamp,
     createdby: payload.createdby ?? null,
     updatedby: payload.updatedby ?? id,
+    username: resolvedUsername,
   };
 
   const mirrored = applyDobMirror(basePayload);
@@ -146,6 +218,7 @@ async function createUser(payload = {}) {
 
   await upsertLookup('email', payload.email, id);
   await upsertLookup('phone', payload.phone, id);
+  await upsertLookup('username', resolvedUsername, id);
 
   return {
     userId: id,
@@ -182,9 +255,11 @@ async function updateUser(id, payload = {}) {
 
   await ensureLookupIsUnique('email', payload.email, id);
   await ensureLookupIsUnique('phone', payload.phone, id);
+  await ensureLookupIsUnique('username', payload.username, id);
 
   const oldEmailEncrypted = existing.email;
   const oldPhoneEncrypted = existing.phone;
+  const oldUsernameEncrypted = existing.username;
 
   const updatePayload = {
     ...payload,
@@ -199,11 +274,16 @@ async function updateUser(id, payload = {}) {
 
   let newEmailEncrypted = null;
   let newPhoneEncrypted = null;
+  let newUsernameEncrypted = null;
   if (Object.prototype.hasOwnProperty.call(payload, 'email')) {
     newEmailEncrypted = await upsertLookup('email', payload.email, id);
   }
   if (Object.prototype.hasOwnProperty.call(payload, 'phone')) {
     newPhoneEncrypted = await upsertLookup('phone', payload.phone, id);
+  }
+  if (Object.prototype.hasOwnProperty.call(payload, 'username')) {
+    const normalizedUsername = normalizeForStorage(payload.username, 'username');
+    newUsernameEncrypted = await upsertLookup('username', normalizedUsername, id);
   }
 
   if (newEmailEncrypted && oldEmailEncrypted && newEmailEncrypted !== oldEmailEncrypted) {
@@ -211,6 +291,9 @@ async function updateUser(id, payload = {}) {
   }
   if (newPhoneEncrypted && oldPhoneEncrypted && newPhoneEncrypted !== oldPhoneEncrypted) {
     await deleteLookup('phone', oldPhoneEncrypted);
+  }
+  if (newUsernameEncrypted && oldUsernameEncrypted && newUsernameEncrypted !== oldUsernameEncrypted) {
+    await deleteLookup('username', oldUsernameEncrypted);
   }
 
   const updated = await fetchUserById(id);
