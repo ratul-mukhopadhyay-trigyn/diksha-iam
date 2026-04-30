@@ -26,6 +26,22 @@ function encryptLookupValue(inputValue) {
   return value;
 }
 
+function encryptStoredField(inputValue) {
+  if (!inputValue) return inputValue;
+
+  let value = String(inputValue);
+  for (let i = 0; i < 3; i++) {
+    const cipher = crypto.createCipheriv('aes-128-ecb', SUNBIRD_AES_ECB_KEY, null);
+    const encrypted = Buffer.concat([
+      cipher.update(`${SUNBIRD_ENCRYPTION_SALT}${value}`, 'utf8'),
+      cipher.final(),
+    ]);
+    value = toJavaBase64(encrypted);
+  }
+
+  return value;
+}
+
 function decryptStoredField(encryptedValue, fieldName = 'unknown') {
   if (!encryptedValue) return encryptedValue;
 
@@ -106,6 +122,7 @@ function decryptOtpPayload(payload) {
 module.exports = {
   decryptOtpPayload,
   decryptStoredField,
+  encryptStoredField,
   encryptOtpPayload,
   encryptLookupValue,
   encryptSsoPayload,

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const otpRoutes = require('./routes/otp.routes');
 const ssoRoutes = require('./routes/sso.routes');
+const usersRoutes = require('./routes/users.routes');
 const { connect, shutdown } = require('./db/cassandra');
 const { HttpError } = require('./services/sso.service');
 
@@ -17,6 +18,7 @@ app.get('/health', (req, res) => {
 
 app.use('/', otpRoutes);
 app.use('/', ssoRoutes);
+app.use('/', usersRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found.' });
