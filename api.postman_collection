@@ -22,13 +22,19 @@
           }
         },
         "url": {
-          "raw": "localhost:3000/users",
+          "raw": "localhost:3000/users?isEncrypted=false",
           "host": [
             "localhost"
           ],
           "port": "3000",
           "path": [
             "users"
+          ],
+          "query": [
+            {
+              "key": "isEncrypted",
+              "value": "false"
+            }
           ]
         },
         "description": "Create User"
@@ -85,7 +91,7 @@
           }
         },
         "url": {
-          "raw": "localhost:3000/users?email=ratul003@example.com",
+          "raw": "localhost:3000/users?email=ratul003@example.com?isEncrypted=false",
           "host": [
             "localhost"
           ],
@@ -96,7 +102,7 @@
           "query": [
             {
               "key": "email",
-              "value": "ratul003@example.com"
+              "value": "ratul003@example.com?isEncrypted=false"
             }
           ]
         },
@@ -122,7 +128,7 @@
           }
         },
         "url": {
-          "raw": "localhost:3000/users?phone=9876543298",
+          "raw": "localhost:3000/users?phone=9876543298?isEncrypted=false",
           "host": [
             "localhost"
           ],
@@ -133,7 +139,7 @@
           "query": [
             {
               "key": "phone",
-              "value": "9876543298"
+              "value": "9876543298?isEncrypted=false"
             }
           ]
         }
