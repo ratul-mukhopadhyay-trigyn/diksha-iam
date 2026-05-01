@@ -12,9 +12,11 @@ const {
 const LMS_SSO_BASE_URL = process.env.LMS_SSO_BASE_URL;
 
 class HttpError extends Error {
-  constructor(statusCode, message) {
+  constructor(statusCode, message, options = {}) {
     super(message);
     this.statusCode = statusCode;
+    this.errorCode = options.errorCode ?? statusCode;
+    this.error = options.error ?? null;
   }
 }
 

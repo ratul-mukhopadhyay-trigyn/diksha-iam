@@ -27,6 +27,8 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   const statusCode = err instanceof HttpError ? err.statusCode : 500;
   const message = err instanceof HttpError ? err.message : 'Internal server error.';
+  const errorCode = err instanceof HttpError ? err.errorCode : statusCode;
+  const error = err instanceof HttpError ? err.error : null;
   if (!(err instanceof HttpError)) {
     console.error(err);
   }
@@ -36,7 +38,11 @@ app.use((err, req, res, next) => {
     'Pragma': 'no-cache',
   });
 
-  res.status(statusCode).json({ error: message });
+  const body = error
+    ? { errorCode, error, message }
+    : { error: message };
+
+  res.status(statusCode).json(body);
 });
 
 async function start() {
