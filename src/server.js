@@ -5,6 +5,10 @@ const ssoRoutes = require('./routes/sso.routes');
 const usersRoutes = require('./routes/users.routes');
 const { connect, shutdown } = require('./db/cassandra');
 const { HttpError } = require('./services/sso.service');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
+
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -12,6 +16,25 @@ const port = Number(process.env.PORT || 3000);
 app.disable('x-powered-by');
 app.use(express.json());
 
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     tags:
+ *       - System
+ *     responses:
+ *       200:
+ *         description: Service is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ */
 app.get('/health', (req, res) => {
   res.status(200).json({ ok: true });
 });
@@ -19,6 +42,8 @@ app.get('/health', (req, res) => {
 app.use('/', otpRoutes);
 app.use('/', ssoRoutes);
 app.use('/', usersRoutes);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found.' });

@@ -36,6 +36,15 @@ Health check:
 - `GET /health`
 - Example: `http://localhost:3000/health`
 
+## API documentation (Swagger UI)
+
+Interactive OpenAPI docs are served at:
+
+- `GET /api-docs`
+- Example: `http://localhost:3000/api-docs`
+
+Use the same host and port as your app (`PORT` in `.env`, default `3000`).
+
 ## Run With Docker
 
 Build and run:
@@ -60,6 +69,7 @@ The container runs only the Node service and still connects to your external Cas
 
 ## Main API Endpoints
 
+- `GET /api-docs` (Swagger UI)
 - `GET /health`
 - `GET /sso?email=...` or `GET /sso?phone=...`
 - `POST /otp/generate`
